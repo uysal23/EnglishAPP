@@ -1,1 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#6B8E6B">
+<title>Willowbrook: Milo's Story</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-512.png">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #FDF8F3;
+  color: #3D3D3D;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+#app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: #FDF8F3; position: relative; }
 
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, #6B8E6B 0%, #4A6B4A 100%);
+  color: white;
+  padding: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+.header h1 { font-size: 20px; font-weight: 700; }
+.header .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+.header .row { display: flex; justify-content: space-between; align-items: center; }
+
+/* WELCOME BANNER */
+.welcome {
+  background: linear-gradient(135deg, #6B8E6B 0%, #4A6B4A 100%);
+  color: white;
+  padding: 20px 16px 32px;
+}
+.welcome .greet { font-size: 14px; opacity: 0.85; }
+.welcome .title { font-size: 22px; font-weight: 700; margin: 4px 0 12px; }
+.stats { display: flex; gap: 16px; font-size: 13px; }
+.stat { display: flex; align-items: center; gap: 4px; }
+
+/* CONTENT */
+.content { padding: 16px; padding-bottom: 80px; }
+
+/* LEVEL CARD */
+.level-card {
+  background: #FFFDF9;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.level-card:active { transform: scale(0.98); }
+.level-card.locked { opacity: 0.55; cursor: not-allowed; }
+.level-icon {
+  width: 56px; height: 56px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; flex-shrink: 0;
+}
+.level-info { flex: 1; }
+.level-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.level-desc { font-size: 12px; color: #888; margin-bottom: 8px; }
+.progress-bar { height: 5px; background: #E5E5E5; border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: #6B8E6B; border-radius: 3px; transition: width 0.3s; }
+.chevron { color: #CCC; font-size: 20px; }
+
+/* SCENE CARD */
+.scene-card {
+  background: #FFFDF9; border-radius: 14px; padding: 14px;
+  margin-bottom: 10px; cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: transform 0.15s;
+}
+.scene-card:active { transform: scale(0.98); }
+.scene-num {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 15px; flex-shrink: 0;
+}
+.scene-num.done { background: rgba(76,175,80,0.15); color: #4CAF50; }
+.scene-num.todo { background: rgba(33,150,243,0.15); color: #2196F3; }
+.scene-info { flex: 1; }
+.scene-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; line-height: 1.3; }
+.scene-gram { font-size: 11px; color: #888; }
+
+/* BACK BUTTON */
+.back-btn {
+  background: none; border: none; color: white; font-size: 24px;
+  cursor: pointer; padding: 0 8px 0 0; line-height: 1;
+}
+
+/* SCENE VIEWER */
+.scene-viewer { position: relative; min-height: calc(100vh - 60px); background: #1a1a1a; }
+.scene-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #4A6B4A 0%, #2C3E2C 100%);
+  display: flex; align-items: center; justify-content: center;
+}
+.scene-loc { color: rgba(255,255,255,0.4); font-size: 18px; text-align: center; padding: 20px; }
+.characters-row {
+  position: absolute; bottom: 200px; left: 0; right: 0;
+  display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+  padding: 0 20px;
+}
+.char-chip {
+  padding: 6px 12px; border-radius: 20px;
+  background: rgba(255,255,255,0.1);
+  color: white; font-size: 12px;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+}
+.char-chip.active {
+  background: #6B8E6B; border-color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(107,142,107,0.6);
+}
+.subtitle-box {
+  position: absolute; bottom: 100px; left: 16px; right: 16px;
+  background: rgba(0,0,0,0.85); border-radius: 12px;
+  padding: 14px;
+}
+.subtitle-char { color: #9ECF9E; font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+.subtitle-text { color: white; font-size: 15px; line-height: 1.4; }
+.subtitle-stage { color: rgba(255,255,255,0.5); font-size: 12px; font-style: italic; margin-top: 6px; }
+
+/* SCENE CONTROLS */
+.scene-controls {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #000; padding: 12px 16px 16px;
+  max-width: 480px; margin: 0 auto;
+}
+.ctrl-progress { height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+.ctrl-progress-fill { height: 100%; background: #6B8E6B; transition: width 0.3s; }
+.ctrl-row { display: flex; justify-content: space-between; align-items: center; }
+.ctrl-btn {
+  background: rgba(255,255,255,0.1); border: none; color: white;
+  padding: 10px 16px; border-radius: 10px; font-size: 14px;
+  cursor: pointer; font-weight: 600;
+}
+.ctrl-btn:disabled { opacity: 0.3; }
+.ctrl-btn.primary { background: #6B8E6B; }
+.ctrl-count { color: white; font-size: 13px; }
+
+/* EXERCISE */
+.exercise-container { padding: 16px; }
+.gram-badge {
+  display: inline-block; padding: 4px 12px; border-radius: 12px;
+  background: rgba(33,150,243,0.1); color: #2196F3;
+  font-size: 11px; font-weight: 600; margin-bottom: 12px;
+}
+.question { font-size: 18px; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option {
+  padding: 16px; border-radius: 12px; background: #F5F5F5;
+  cursor: pointer; font-size: 15px;
+  border: 2px solid transparent; transition: all 0.2s;
+}
+.option.selected { background: rgba(33,150,243,0.08); border-color: #2196F3; }
+.option.correct { background: rgba(76,175,80,0.15); border-color: #4CAF50; }
+.option.wrong { background: rgba(244,67,54,0.12); border-color: #F44336; }
+
+/* BUTTONS */
+.btn {
+  width: 100%; padding: 14px; border: none; border-radius: 12px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  transition: transform 0.15s;
+}
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: #6B8E6B; color: white; }
+.btn-secondary { background: #F0F0F0; color: #333; }
+.btn-danger { background: #F44336; color: white; }
+.btn-row { display: flex; gap: 10px; margin-top: 16px; }
+.btn-row .btn { margin: 0; }
+
+/* FLASHCARD */
+.flashcard-wrap { perspective: 1000px; height: 340px; margin-bottom: 16px; }
+.flashcard {
+  position: relative; width: 100%; height: 100%;
+  transition: transform 0.6s; transform-style: preserve-3d;
+  cursor: pointer;
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.fc-face {
+  position: absolute; inset: 0; backface-visibility: hidden;
+  border-radius: 16px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px; text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.fc-front { background: white; }
+.fc-back { background: linear-gradient(135deg, #6B8E6B, #4A6B4A); color: white; transform: rotateY(180deg); }
+.fc-word { font-size: 26px; font-weight: 700; margin-bottom: 12px; }
+.fc-hint { color: #999; font-size: 12px; margin-top: 16px; }
+.fc-def { font-size: 16px; line-height: 1.5; margin-bottom: 16px; }
+.fc-example { background: rgba(255,255,255,0.15); padding: 12px; border-radius: 10px; font-style: italic; font-size: 14px; line-height: 1.4; }
+
+/* EXAM */
+.exam-header { display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 13px; color: #666; }
+.exam-status {
+  padding: 10px 14px; border-radius: 10px; margin-bottom: 16px;
+  font-size: 13px; font-weight: 600;
+}
+.exam-status.vocab { background: rgba(33,150,243,0.1); color: #2196F3; }
+.exam-status.gram { background: rgba(156,39,176,0.1); color: #9C27B0; }
+
+/* RESULT */
+.result-card {
+  background: white; border-radius: 20px; padding: 32px 24px;
+  text-align: center; margin: 20px 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.result-emoji { font-size: 72px; margin-bottom: 16px; }
+.result-title { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+.score-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px; border-radius: 12px; margin-bottom: 10px;
+}
+.score-row.pass { background: rgba(76,175,80,0.1); }
+.score-row.fail { background: rgba(244,67,54,0.1); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; z-index: 1000;
+}
+.modal {
+  background: white; border-radius: 16px; padding: 24px;
+  max-width: 380px; width: 100%; text-align: center;
+}
+.modal h3 { font-size: 20px; margin-bottom: 12px; }
+.modal p { color: #666; line-height: 1.5; margin-bottom: 20px; }
+
+/* CONFETTI */
+.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+
+/* HIDDEN */
+.hidden { display: none !important; }
+
+/* ANIMATIONS */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.3s ease-out; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ============ STATE ============
+const App = {
+  screen: 'home',
+  currentLevel: null,
+  currentScene: null,
+  currentDialogueIdx: 0,
+  exerciseIdx: 0,
+  exerciseCorrect: 0,
+  exerciseAnswered: false,
+  exerciseSelected: null,
+  flashcardIdx: 0,
+  flashcardFlipped: false,
+  examStage: 'vocabulary',
+  examIdx: 0,
+  examCorrect: 0,
+  examAnswered: false,
+  examSelected: null,
+  vocabScore: 0,
+  grammarScore: 0,
+  progress: JSON.parse(localStorage.getItem('willowbrook_progress') || '{}'),
+  totalXP: parseInt(localStorage.getItem('willowbrook_xp') || '0'),
+};
+
+function saveProgress() {
+  localStorage.setItem('willowbrook_progress', JSON.stringify(App.progress));
+  localStorage.setItem('willowbrook_xp', App.totalXP.toString());
+}
+
+// ============ SCENE DATA ============
+// We define scenes here. Format:
+// { id, level, grammar, title, location, characters, dialogues, vocab, exercises, vocabExam, grammarExam }
+
+const SCENES = {
+  A1: [
+    {
+      id: 'a1_01',
+      title: 'Milo Arrives in Willowbrook',
+      grammar: 'Verb to Be (am/is/are)',
+      location: 'Willowbrook Train Station',
+      characters: ['MILO', 'ANNA', 'PIP', 'MR. BROWN'],
+      dialogues: [
+        { c: 'MILO', t: 'Okay. Okay. This is Willowbrook. I am here. I am really here.', s: '(to himself)' },
+        { c: 'MILO', t: 'Willowbrook. Yes. This is the right place. I am in the right place.' },
+        { c: 'MILO', t: 'Oh! Hello. Who are you?', s: '(surprised, but smiling)' },
+        { c: 'MILO', t: 'Are you alone? Where is your owner?' },
+        { c: 'ANNA', t: 'Pip! There you are!' },
+        { c: 'ANNA', t: 'I am so sorry. Is he bothering you?' },
+        { c: 'MILO', t: 'No, no. He is nice. He is very friendly.' },
+        { c: 'ANNA', t: 'He is. He is also very fast. He escapes sometimes.' },
+        { c: 'ANNA', t: 'I am Anna. Are you new here?' },
+        { c: 'MILO', t: 'Yes. I am Milo. I am new. I am... I am a little lost, actually.' },
+        { c: 'ANNA', t: 'Lost? In Willowbrook? That is hard to do. It is a small town.' },
+        { c: 'MILO', t: 'I am good at hard things, I think.' },
+        { c: 'ANNA', t: 'Where are you going?' },
+        { c: 'MILO', t: 'The Cozy Cup. I have a room there. Above the café.' },
+        { c: 'ANNA', t: 'You are the new tenant! Mr. Brown told me about you. He said you are a writer.' },
+        { c: 'MILO', t: 'I am not a writer. I want to be a writer. There is a difference.' },
+        { c: 'ANNA', t: 'Well, that is a good start. The Cozy Cup is my café. I am the manager.' },
+        { c: 'MILO', t: 'Really? That is... that is great. That is very great.' },
+        { c: 'ANNA', t: 'Come. I will show you. It is not far. Pip and I walk there every day.' },
+        { c: 'MILO', t: 'Is it always this quiet here?' },
+        { c: 'ANNA', t: 'In the afternoon, yes. It is peaceful. In the morning, it is busy.' },
+        { c: 'MILO', t: 'I am happy to hear that. I am tired. The train was long.' },
+        { c: 'ANNA', t: 'Where are you from?' },
+        { c: 'MILO', t: 'A big city. Very big. Very loud. I wanted something smaller.' },
+        { c: 'ANNA', t: 'Willowbrook is smaller. Maybe too small for some people.' },
+        { c: 'MILO', t: 'I think it is perfect for me.' },
+        { c: 'MR. BROWN', t: 'Anna! Is that the new boy?' },
+        { c: 'ANNA', t: 'Yes, Mr. Brown! This is Milo.' },
+        { c: 'MR. BROWN', t: 'Milo. Welcome. I am Mr. Brown. I own The Cozy Cup.' },
+        { c: 'MILO', t: 'It is nice to meet you, Mr. Brown. Thank you for the room.' },
+        { c: 'MR. BROWN', t: 'You are welcome. You are young. You are curious. That is good.' },
+        { c: 'MILO', t: 'I am curious. I am also confused. Often.' },
+        { c: 'MR. BROWN', t: 'That is the best combination. Confused and curious. That is how we learn.' },
+        { c: 'ANNA', t: 'Come, Milo. I will show you your room. You are tired.' },
+        { c: 'MILO', t: 'Yes. I am very tired. But I am also happy. This is a good place.' },
+        { c: 'MR. BROWN', t: 'It is a good place. And you are a good person. I can feel it too.' },
+        { c: 'MILO', t: 'It is beautiful.' },
+        { c: 'ANNA', t: 'It is. And now it is your home.' },
+        { c: 'MILO', t: 'My home. I like that word.' },
+        { c: 'MILO', t: 'You are my first friend here. You are a good dog.' },
+        { c: 'ANNA', t: 'He is a good dog. And now you are part of Willowbrook.' },
+        { c: 'MILO', t: 'I am part of Willowbrook. That is a good sentence. I am part of Willowbrook.' },
+      ],
+      vocab: [
+        ['Willowbrook', 'The name of the small, cozy town.', 'This is Willowbrook.'],
+        ['station', 'A place where trains stop.', 'The train station is quiet.'],
+        ['platform', 'The area beside the train tracks.', 'Milo stands on the platform.'],
+        ['suitcase', 'A bag for travel.', 'He carries one suitcase.'],
+        ['crumpled', 'Crushed or wrinkled.', 'A crumpled paper.'],
+        ['confused', 'Not understanding clearly.', 'I am also confused.'],
+        ['curious', 'Wanting to know.', 'Good for curious people.'],
+        ['friendly', 'Kind and pleasant.', 'He is very friendly.'],
+        ['manager', 'A person in charge.', 'I am the manager.'],
+        ['tenant', 'A person who rents.', 'You are the new tenant!'],
+        ['difference', 'Not the same.', 'There is a difference.'],
+        ['escape', 'To get away.', 'He escapes sometimes.'],
+        ['apron', 'Clothing worn over clothes.', 'She wears an apron.'],
+        ['lost', 'Not knowing where you are.', 'I am a little lost.'],
+        ['right place', 'Correct location.', 'This is the right place.'],
+        ['big city', 'A large urban area.', 'I am from a big city.'],
+        ['loud', 'Making noise.', 'The city was very loud.'],
+        ['smaller', 'Less big.', 'I wanted something smaller.'],
+        ['peaceful', 'Calm and quiet.', 'It is peaceful here.'],
+        ['busy', 'Full of activity.', 'In the morning, it is busy.'],
+        ['own', 'To have as property.', 'I own The Cozy Cup.'],
+        ['building', 'A structure with walls.', 'I own the building.'],
+        ['bench', 'A long seat.', 'He sits on a park bench.'],
+        ['welcome', 'A happy greeting.', 'Welcome to Willowbrook.'],
+        ['young', 'Not old.', 'You are young.'],
+        ['eyes', 'Used for seeing.', 'I can see it in your eyes.'],
+        ['combination', 'Things together.', 'The best combination.'],
+        ['learn', 'To gain knowledge.', 'That is how we learn.'],
+        ['tired', 'Needing rest.', 'I am very tired.'],
+        ['happy', 'Feeling joy.', 'I am also happy.'],
+        ['feel', 'To experience.', 'I can feel it.'],
+        ['beautiful', 'Very pretty.', 'It is beautiful.'],
+        ['home', 'Where you belong.', 'It is your home.'],
+        ['word', 'A unit of language.', 'I like that word.'],
+        ['dog', 'An animal kept as a pet.', 'A good dog.'],
+        ['part of', 'A piece of.', 'Part of Willowbrook.'],
+        ['sentence', 'A group of words.', 'A good sentence.'],
+        ['really', 'Truly.', 'I am really here.'],
+        ['slowly', 'At slow speed.', 'Reads slowly.'],
+        ['softly', 'Gently.', 'The sun is soft.'],
+        ['golden', 'Warm yellow.', 'The sun is golden.'],
+        ['breeze', 'A gentle wind.', 'A gentle breeze.'],
+        ['scent', 'A smell.', 'The scent of bread.'],
+        ['nearby', 'Close by.', 'From somewhere nearby.'],
+        ['lazily', 'In a relaxed way.', 'Birds chirp lazily.'],
+        ['quiet', 'Little noise.', 'The station is quiet.'],
+        ['messy', 'Untidy.', 'Messy brown hair.'],
+        ['kind', 'Caring.', 'Kind eyes.'],
+        ['expression', 'A look on a face.', 'A lost expression.'],
+        ['blinking', 'Opening eyes quickly.', 'He looks around, blinking.'],
+      ],
+      grammarExam: [
+        { q: 'I ___ here.', a: 'am', o: ['am','is','are','be'] },
+        { q: 'This ___ Willowbrook.', a: 'is', o: ['is','am','are','be'] },
+        { q: 'He ___ nice.', a: 'is', o: ['is','am','are','be'] },
+        { q: 'You ___ new here.', a: 'are', o: ['are','am','is','be'] },
+        { q: 'She ___ the manager.', a: 'is', o: ['is','am','are','be'] },
+        { q: 'We ___ friends.', a: 'are', o: ['are','am','is','be'] },
+        { q: 'They ___ at the station.', a: 'are', o: ['are','am','is','be'] },
+        { q: 'It ___ a small town.', a: 'is', o: ['is','am','are','be'] },
+        { q: 'I ___ a writer.', a: 'am', o: ['am','is','are','be'] },
+        { q: 'Anna and I ___ walking.', a: 'are', o: ['are','am','is','be'] },
+        { q: 'Milo is a young man. ___ is from a big city.', a: 'He', o: ['He','She','It','They'] },
+        { q: 'Anna is a woman. ___ is the café manager.', a: 'She', o: ['She','He','It','We'] },
+        { q: 'Pip is a dog. ___ is small.', a: 'It', o: ['It','He','She','They'] },
+        { q: 'Milo and Anna are friends. ___ are walking.', a: 'They', o: ['They','We','You','It'] },
+        { q: 'I am Milo. ___ am a writer.', a: 'I', o: ['I','You','He','She'] },
+        { q: 'You are new here. ___ are a little lost.', a: 'You', o: ['You','I','He','She'] },
+        { q: 'I have ___ room above the café.', a: 'a', o: ['a','an','the','-'] },
+        { q: '___ Cozy Cup is my café.', a: 'The', o: ['The','A','An','-'] },
+        { q: 'This is ___ good place.', a: 'a', o: ['a','an','the','-'] },
+        { q: 'He is ___ old man.', a: 'an', o: ['an','a','the','-'] },
+      ],
+    },
+    {
+      id: 'a1_02',
+      title: 'I, You, He, She, We, They',
+      grammar: 'Subject Pronouns',
+      location: 'The Cozy Cup (Interior)',
+      characters: ['MILO', 'ANNA', 'LEO', 'SOFIA', 'PIP'],
+      dialogues: [
+        { c: 'ANNA', t: 'Here. It is chamomile. It helps you sleep.' },
+        { c: 'MILO', t: 'Thank you. You are very kind.' },
+        { c: 'ANNA', t: 'I try. So, Milo. Tell me about you. Who are you?' },
+        { c: 'MILO', t: 'I am Milo. I am twenty-three. I am from a big city. I like books.' },
+        { c: 'ANNA', t: 'And you want to be a writer.' },
+        { c: 'MILO', t: 'Yes. I want to write stories. I want to write about people.' },
+        { c: 'ANNA', t: 'That is a good dream.' },
+        { c: 'MILO', t: 'What about you? Who are you?' },
+        { c: 'ANNA', t: 'I am Anna. I am twenty-six. I am from Willowbrook.' },
+        { c: 'MILO', t: 'He is a good dog. I like him.' },
+        { c: 'ANNA', t: 'He likes you too. He does not like everyone.' },
+        { c: 'MILO', t: 'Really?' },
+        { c: 'ANNA', t: 'Really. He is a good judge of people.' },
+        { c: 'MILO', t: 'That is good to know. I want to be okay.' },
+        { c: 'LEO', t: 'Anna! My favourite person in the world!' },
+        { c: 'ANNA', t: 'Leo. You say that to everyone.' },
+        { c: 'LEO', t: 'I do. But I mean it every time.' },
+        { c: 'LEO', t: 'Oh! Hello. You are new. I am Leo. I am your neighbour.' },
+        { c: 'MILO', t: 'I am Milo. I am your new neighbour.' },
+        { c: 'LEO', t: 'We are going to be friends. I can feel it.' },
+        { c: 'LEO', t: 'You are a writer!' },
+        { c: 'MILO', t: 'I want to be.' },
+        { c: 'LEO', t: 'If you write, you are a writer. It is simple.' },
+        { c: 'MILO', t: 'You are right. Maybe.' },
+        { c: 'LEO', t: 'I am always right. Ask Anna. She knows.' },
+        { c: 'ANNA', t: 'He is not always right. He is often wrong. But he is funny.' },
+        { c: 'SOFIA', t: 'Hello. You must be the new tenant. I am Sofia.' },
+        { c: 'MILO', t: 'I am Milo. It is nice to meet you.' },
+        { c: 'SOFIA', t: 'We are a small team here. Anna, me, Leo sometimes, and Mr. Brown.' },
+        { c: 'MILO', t: 'You are all very friendly. I like it here.' },
+        { c: 'ANNA', t: 'We like you too. You are part of us now.' },
+      ],
+      vocab: [
+        ['chamomile', 'A relaxing tea.', 'It is chamomile.'],
+        ['neighbour', 'Person living next door.', 'I am your neighbour.'],
+        ['judge', 'To form an opinion.', 'A good judge of people.'],
+        ['repairman', 'Person who fixes things.', 'Call the repairman.'],
+        ['part-time', 'Working some hours.', 'I work part-time.'],
+        ['team', 'A group working together.', 'We are a small team.'],
+        ['group', 'People together.', 'We are a group.'],
+        ['alone', 'Without others.', 'I am not alone.'],
+        ['play cards', 'A card game.', 'Do you play cards?'],
+        ['tomorrow', 'The day after today.', 'Tomorrow is good.'],
+        ['strange', 'Unusual.', 'A strange noise.'],
+        ['noise', 'A sound.', 'A strange noise.'],
+        ['fixed', 'Repaired.', 'I fixed it.'],
+        ['quietly', 'With little noise.', 'He says it quietly.'],
+        ['favourite', 'Best-liked.', 'My favourite person.'],
+        ['world', 'The Earth.', 'In the world.'],
+        ['smallest', 'Least big.', 'The smallest town.'],
+        ['peace', 'Calm and quiet.', 'I want peace.'],
+        ['laughter', 'Sound of laughing.', 'Laughter is important.'],
+        ['friendly', 'Kind and pleasant.', 'All very friendly.'],
+      ],
+      grammarExam: [
+        { q: 'Milo is a young man. ___ is from a big city.', a: 'He', o: ['He','She','It','They'] },
+        { q: 'Anna is a woman. ___ is the café manager.', a: 'She', o: ['She','He','It','We'] },
+        { q: 'Pip is a dog. ___ is small.', a: 'It', o: ['It','He','She','They'] },
+        { q: 'Milo and Anna are friends. ___ are walking.', a: 'They', o: ['They','We','You','It'] },
+        { q: 'I am Milo. ___ am a writer.', a: 'I', o: ['I','You','He','She'] },
+        { q: 'You are new here. ___ are a little lost.', a: 'You', o: ['You','I','He','She'] },
+        { q: 'Anna is smiling. ___ is very kind.', a: 'She', o: ['She','He','It','They'] },
+        { q: 'The books are old. ___ are beautiful.', a: 'They', o: ['They','It','He','She'] },
+        { q: 'Mr. Brown is an old man. ___ owns the building.', a: 'He', o: ['He','She','It','They'] },
+        { q: 'Milo and I are friends. ___ are both new here.', a: 'We', o: ['We','They','You','It'] },
+        { q: 'This is my friend. ___ is very kind.', a: 'She', o: ['She','He','It','They'] },
+        { q: 'The coffee is hot. ___ is delicious.', a: 'It', o: ['It','He','She','They'] },
+        { q: 'My parents are here. ___ are happy.', a: 'They', o: ['They','We','You','It'] },
+        { q: 'You and I are students. ___ are learning.', a: 'We', o: ['We','They','You','It'] },
+        { q: 'Hello, Mr. Brown. ___ are kind.', a: 'You', o: ['You','I','He','She'] },
+      ],
+    },
+    {
+      id: 'a1_03',
+      title: 'A Cup, A Book, and The Blue Door',
+      grammar: 'Articles (a/an/the)',
+      location: 'The Cozy Cup (Morning)',
+      characters: ['MILO', 'ANNA', 'SOFIA', 'LEO', 'MR. BROWN'],
+      dialogues: [
+        { c: 'MILO', t: 'Good morning.' },
+        { c: 'ANNA', t: 'Good morning, Milo. Did you sleep well?' },
+        { c: 'MILO', t: 'Yes. The bed is comfortable. The room is quiet.' },
+        { c: 'ANNA', t: 'I am happy. Do you want a cup of coffee?' },
+        { c: 'MILO', t: 'Yes, please. A cup of coffee would be nice.' },
+        { c: 'ANNA', t: 'Here. It is a special blend. We call it "The Cozy Blend."' },
+        { c: 'MILO', t: 'The Cozy Blend. I like the name.' },
+        { c: 'SOFIA', t: 'It is the best coffee in town.' },
+        { c: 'MILO', t: 'That is a big claim.' },
+        { c: 'SOFIA', t: 'It is a true claim.' },
+        { c: 'MILO', t: 'Oh. It is good. It is very good.' },
+        { c: 'ANNA', t: 'Thank you. I made the blend myself.' },
+        { c: 'MILO', t: 'You are an artist.' },
+        { c: 'ANNA', t: 'I am a café manager. But I like "artist."' },
+        { c: 'MILO', t: 'The café is beautiful. The books, the chairs, the lamps.' },
+        { c: 'ANNA', t: 'Mr. Brown owns the building. He loves books.' },
+        { c: 'LEO', t: 'Good morning, everyone. I smell coffee.' },
+        { c: 'ANNA', t: 'You always smell coffee.' },
+        { c: 'LEO', t: 'Coffee is the best smell in the world. After bread.' },
+        { c: 'MILO', t: 'The sea?' },
+        { c: 'LEO', t: 'There is a seaside town near here. Beautiful.' },
+        { c: 'MILO', t: 'I would like that.' },
+        { c: 'LEO', t: 'What is your plan for today?' },
+        { c: 'MILO', t: 'I want to explore the town.' },
+        { c: 'ANNA', t: 'The theatre is wonderful. They do plays there.' },
+        { c: 'MILO', t: 'I love plays.' },
+        { c: 'SOFIA', t: 'The next play is next week. It is a comedy.' },
+        { c: 'MILO', t: 'A comedy is good. Laughing is good.' },
+        { c: 'LEO', t: 'Laughing is the best. I laugh every day.' },
+        { c: 'ANNA', t: 'You laugh at everything. Even at nothing.' },
+        { c: 'LEO', t: 'Especially at nothing. Nothing is very funny.' },
+        { c: 'MILO', t: 'You are funny, Leo.' },
+        { c: 'LEO', t: 'Thank you. I try.' },
+        { c: 'MR. BROWN', t: 'Good morning, my friends. I have a new box of books.' },
+        { c: 'MILO', t: 'Can I help you?' },
+        { c: 'MR. BROWN', t: 'Yes, please. You can take the box. It is heavy.' },
+        { c: 'MILO', t: 'Oh! It is very heavy.' },
+        { c: 'MR. BROWN', t: 'Books are heavy. But they are worth it.' },
+        { c: 'MILO', t: 'These are amazing. Look at this one. It is a book of poems.' },
+        { c: 'MR. BROWN', t: 'You like poems?' },
+        { c: 'MILO', t: 'I love poems. A poem is a small story.' },
+        { c: 'MR. BROWN', t: 'You are a poet.' },
+        { c: 'MILO', t: 'I am not a poet. I am a person who likes poems.' },
+        { c: 'MR. BROWN', t: 'That is the same thing.' },
+        { c: 'MILO', t: '"The moon is a silver boat in the sea of the sky."' },
+        { c: 'MR. BROWN', t: 'Beautiful. Who wrote it?' },
+        { c: 'MILO', t: 'I do not know. The name is not here.' },
+        { c: 'MR. BROWN', t: 'Then it is a mystery. A beautiful mystery.' },
+        { c: 'MILO', t: 'I am happy. This is a good morning.' },
+      ],
+      vocab: [
+        ['blend', 'A coffee mixture.', 'A special blend.'],
+        ['claim', 'A statement.', 'A big claim.'],
+        ['artist', 'A person who creates art.', 'You are an artist.'],
+        ['lamp', 'A device that gives light.', 'The lamps are nice.'],
+        ['owner', 'Person who owns.', 'Mr. Brown owns the building.'],
+        ['explore', 'To travel around.', 'Explore the town.'],
+        ['theatre', 'Where plays are performed.', 'The theatre is wonderful.'],
+        ['local', 'Belonging to the area.', 'Local actors.'],
+        ['comedy', 'A funny play.', 'It is a comedy.'],
+        ['heavy', 'Weighing a lot.', 'It is very heavy.'],
+        ['worth it', 'Good enough.', 'Books are worth it.'],
+        ['poem', 'Writing in verse.', 'A book of poems.'],
+        ['poet', 'A person who writes poems.', 'You are a poet.'],
+        ['mystery', 'Difficult to understand.', 'It is a mystery.'],
+        ['silver', 'A shiny grey colour.', 'The moon is silver.'],
+        ['boat', 'A small vehicle on water.', 'A silver boat.'],
+        ['sea', 'Salt water covering Earth.', 'The sea of the sky.'],
+        ['sky', 'Above the Earth.', 'The sea of the sky.'],
+        ['agree', 'To have same opinion.', 'Pip agrees.'],
+        ['normal', 'Usual.', 'Normal is boring.'],
+      ],
+      grammarExam: [
+        { q: 'I have ___ room above the café.', a: 'a', o: ['a','an','the','-'] },
+        { q: '___ Cozy Cup is my café.', a: 'The', o: ['The','A','An','-'] },
+        { q: 'This is ___ good place.', a: 'a', o: ['a','an','the','-'] },
+        { q: 'I am ___ writer.', a: 'a', o: ['a','an','the','-'] },
+        { q: 'She is ___ manager.', a: 'a', o: ['a','an','the','-'] },
+        { q: 'It is ___ small town.', a: 'a', o: ['a','an','the','-'] },
+        { q: 'He is ___ old man.', a: 'an', o: ['an','a','the','-'] },
+        { q: 'This is ___ right place.', a: 'the', o: ['the','a','an','-'] },
+        { q: 'I carry ___ suitcase.', a: 'a', o: ['a','an','the','-'] },
+        { q: 'She wears ___ green apron.', a: 'a', o: ['a','an','the','-'] },
+        { q: 'That is ___ book of poems.', a: 'a', o: ['a','an','the','-'] },
+        { q: 'It is ___ best coffee in town.', a: 'the', o: ['the','a','an','-'] },
+        { q: 'I have ___ idea.', a: 'an', o: ['an','a','the','-'] },
+        { q: 'Coffee is ___ best smell.', a: 'the', o: ['the','a','an','-'] },
+        { q: 'It is ___ comedy.', a: 'a', o: ['a','an','the','-'] },
+      ],
+    },
+    // Additional scenes will be auto-generated below with the pattern
+  ],
+};
+
+// ============ AUTO-GENERATE REMAINING SCENES ============
+// We have 44 scenes for A1. Scenes 4-44 use the same structure.
+// For a production app, each would have its own dialogue & vocab.
+// Here we generate placeholders that can be replaced later.
+
+const A1_SCENE_LIST = [
+  { id: 'a1_04', title: 'Books, Friends, and Dreams', grammar: 'Plural Nouns' },
+  { id: 'a1_05', title: 'This Cup, That Book, These Friends, Those Days', grammar: 'This/That/These/Those' },
+  { id: 'a1_06', title: 'My Room, Your Smile, His Dog, Her Café', grammar: 'Possessive Adjectives' },
+  { id: 'a1_07', title: 'I Have Got a Dream', grammar: 'Have/Has Got' },
+  { id: 'a1_08', title: 'There is a Town Called Willowbrook', grammar: 'There is/There are' },
+  { id: 'a1_09', title: 'I Write Every Day', grammar: 'Present Simple' },
+  { id: 'a1_10', title: 'I Always Walk with Pip', grammar: 'Adverbs of Frequency' },
+  { id: 'a1_11', title: "I Can Write, I Can't Dance", grammar: "Can/Can't" },
+  { id: 'a1_12', title: 'Come In, Sit Down, Have Some Tea', grammar: 'Imperatives' },
+  { id: 'a1_13', title: 'I Am Writing a Story', grammar: 'Present Continuous' },
+  { id: 'a1_14', title: 'I See Him, I Know Her, I Love It', grammar: 'Object Pronouns' },
+  { id: 'a1_15', title: 'I Like Writing, I Love Reading', grammar: 'Like + -ing' },
+  { id: 'a1_16', title: 'Yesterday Was a Good Day', grammar: 'Past Simple: Was/Were' },
+  { id: 'a1_17', title: 'I Walked, I Talked, I Laughed', grammar: 'Past Simple: Regular Verbs' },
+  { id: 'a1_18', title: 'I Ate, I Drank, I Slept', grammar: 'Past Simple: Irregular Verbs' },
+  { id: 'a1_19', title: 'I Am Going to Write a Book', grammar: 'Future: Going to' },
+  { id: 'a1_20', title: 'In the Morning, At the Café, On Monday', grammar: 'Prepositions of Time and Place' },
+  { id: 'a1_21', title: 'What, Where, When, Who, Why, How', grammar: 'Question Words' },
+  { id: 'a1_22', title: 'A Day in Willowbrook', grammar: 'Review: All A1 Grammar' },
+  { id: 'a1_23', title: 'I Am Not Lost', grammar: 'Verb to Be (Negative Forms)' },
+  { id: 'a1_24', title: 'We Are a Team', grammar: 'Subject Pronouns (Review)' },
+  { id: 'a1_25', title: 'A Day, An Adventure, The Memory', grammar: 'Articles (Review)' },
+  { id: 'a1_26', title: 'Books, Friends, Dreams', grammar: 'Plural Nouns (Review)' },
+  { id: 'a1_27', title: 'This Life, That Dream', grammar: 'This/That/These/Those (Review)' },
+  { id: 'a1_28', title: 'My Heart, Your Smile', grammar: 'Possessive Adjectives (Review)' },
+  { id: 'a1_29', title: 'We Have Got Everything', grammar: 'Have/Has Got (Review)' },
+  { id: 'a1_30', title: 'There is Always Hope', grammar: 'There is/There are (Review)' },
+  { id: 'a1_31', title: 'I Live, I Love, I Write', grammar: 'Present Simple (Review)' },
+  { id: 'a1_32', title: 'I Always Come Back', grammar: 'Adverbs of Frequency (Review)' },
+  { id: 'a1_33', title: 'I Can Do Anything', grammar: "Can/Can't (Review)" },
+  { id: 'a1_34', title: 'Come In, Sit Down, Stay Awhile', grammar: 'Imperatives (Review)' },
+  { id: 'a1_35', title: 'I Am Living My Dream', grammar: 'Present Continuous (Review)' },
+  { id: 'a1_36', title: 'I See You, I Hear You', grammar: 'Object Pronouns (Review)' },
+  { id: 'a1_37', title: 'I Like Being Here', grammar: 'Like + -ing (Review)' },
+  { id: 'a1_38', title: 'Yesterday Was Perfect', grammar: 'Past Simple: Was/Were (Review)' },
+  { id: 'a1_39', title: 'I Walked, I Talked, I Loved', grammar: 'Past Simple: Regular Verbs (Review)' },
+  { id: 'a1_40', title: 'I Ate, I Drank, I Slept', grammar: 'Past Simple: Irregular Verbs (Review)' },
+  { id: 'a1_41', title: 'I Am Going to Be Happy', grammar: 'Future: Going to (Review)' },
+  { id: 'a1_42', title: 'In the Morning, At the Café, On Monday', grammar: 'Prepositions (Review)' },
+  { id: 'a1_43', title: 'What, Where, When, Who, Why, How', grammar: 'Question Words (Review)' },
+  { id: 'a1_44', title: 'A Perfect Day', grammar: 'Review: All A1 Grammar' },
+];
+
+// Auto-generate placeholder scenes (each with 20 dialogues, 20 vocab, 15 grammar)
+A1_SCENE_LIST.forEach(listItem => {
+  if (!SCENES.A1.find(s => s.id === listItem.id)) {
+    const dialogues = [
+      { c: 'MILO', t: `Welcome to scene: ${listItem.title}. This scene focuses on ${listItem.grammar}.` },
+      { c: 'ANNA', t: 'Good morning, Milo. How are you today?' },
+      { c: 'MILO', t: 'I am very well, thank you. I am learning English.' },
+      { c: 'ANNA', t: 'That is wonderful. Let us practice together.' },
+      { c: 'MILO', t: 'Yes. I want to improve my English every day.' },
+      { c: 'ANNA', t: 'You are doing very well.' },
+      { c: 'MILO', t: 'Thank you. I practice a lot.' },
+      { c: 'LEO', t: 'Hello, friends! What are you doing?' },
+      { c: 'MILO', t: 'We are practicing English.' },
+      { c: 'LEO', t: 'English is fun! I love English.' },
+      { c: 'ANNA', t: 'You love everything, Leo.' },
+      { c: 'LEO', t: 'That is true. I love life!' },
+      { c: 'SOFIA', t: 'Good morning, everyone.' },
+      { c: 'MILO', t: 'Good morning, Sofia.' },
+      { c: 'SOFIA', t: 'Would you like some tea?' },
+      { c: 'MILO', t: 'Yes, please. I love tea.' },
+      { c: 'ANNA', t: 'This is a beautiful morning.' },
+      { c: 'MILO', t: 'Yes. Every morning here is beautiful.' },
+      { c: 'MR. BROWN', t: 'You are all very cheerful today.' },
+      { c: 'MILO', t: 'We are happy, Mr. Brown.' },
+    ];
+
+    const vocab = [
+      ['morning', 'The early part of the day.', 'Good morning.'],
+      ['practice', 'To do something repeatedly.', 'I practice every day.'],
+      ['improve', 'To get better.', 'I want to improve.'],
+      ['wonderful', 'Very good.', 'That is wonderful.'],
+      ['together', 'With each other.', 'Let us practice together.'],
+      ['love', 'To care deeply.', 'I love English.'],
+      ['life', 'Being alive.', 'I love life!'],
+      ['beautiful', 'Very pretty.', 'A beautiful morning.'],
+      ['cheerful', 'Happy.', 'You are cheerful.'],
+      ['everyone', 'All people.', 'Good morning, everyone.'],
+      ['friends', 'People you like.', 'Hello, friends!'],
+      ['English', 'A language.', 'I am learning English.'],
+      ['daily', 'Every day.', 'My daily routine.'],
+      ['routine', 'Things you do regularly.', 'My daily routine.'],
+      ['learn', 'To gain knowledge.', 'I learn English.'],
+      ['study', 'To learn.', 'I study every day.'],
+      ['happy', 'Feeling joy.', 'We are happy.'],
+      ['kind', 'Caring.', 'You are kind.'],
+      ['together', 'With each other.', 'We are together.'],
+      ['home', 'Where you belong.', 'This is home.'],
+    ];
+
+    const grammarExam = [
+      { q: 'I ___ happy today.', a: 'am', o: ['am','is','are','be'] },
+      { q: 'She ___ a teacher.', a: 'is', o: ['is','am','are','be'] },
+      { q: 'They ___ my friends.', a: 'are', o: ['are','am','is','be'] },
+      { q: 'We ___ learning English.', a: 'are', o: ['are','am','is','be'] },
+      { q: 'He ___ from London.', a: 'is', o: ['is','am','are','be'] },
+      { q: 'You ___ very kind.', a: 'are', o: ['are','am','is','be'] },
+      { q: 'It ___ a beautiful day.', a: 'is', o: ['is','am','are','be'] },
+      { q: 'I ___ a writer.', a: 'am', o: ['am','is','are','be'] },
+      { q: 'We ___ from Turkey.', a: 'are', o: ['are','am','is','be'] },
+      { q: 'She ___ my sister.', a: 'is', o: ['is','am','are','be'] },
+      { q: 'I have ___ apple.', a: 'an', o: ['an','a','the','-'] },
+      { q: '___ sun is bright.', a: 'The', o: ['The','A','An','-'] },
+      { q: 'This is ___ book.', a: 'a', o: ['a','an','the','-'] },
+      { q: 'He is ___ old man.', a: 'an', o: ['an','a','the','-'] },
+      { q: '___ coffee is hot.', a: 'The', o: ['The','A','An','-'] },
+    ];
+
+    // Generate exercises from dialogues + vocab
+    const exercises = [];
+    // Vocabulary exercises (30)
+    for (let i = 0; i < 30; i++) {
+      const v = vocab[i % vocab.length];
+      const others = vocab.filter(x => x[0] !== v[0]).slice(0, 3).map(x => x[1]);
+      exercises.push({
+        type: 'vocab',
+        q: `What does "${v[0]}" mean?`,
+        a: v[1],
+        o: [v[1], ...others],
+      });
+    }
+    // Dialogue completion (30)
+    for (let i = 0; i < 30; i++) {
+      const d = dialogues[i % dialogues.length];
+      const words = d.t.split(' ');
+      if (words.length < 3) continue;
+      const blankIdx = Math.floor(words.length / 2);
+      const correct = words[blankIdx];
+      const blanked = [...words];
+      blanked[blankIdx] = '___';
+      exercises.push({
+        type: 'dialogue',
+        q: `${d.c}: ${blanked.join(' ')}`,
+        a: correct,
+        o: [correct, 'is', 'are', 'the'],
+      });
+    }
+    // Grammar fill (30)
+    for (let i = 0; i < 30; i++) {
+      const g = grammarExam[i % grammarExam.length];
+      exercises.push({
+        type: 'grammar',
+        q: g.q,
+        a: g.a,
+        o: g.o,
+      });
+    }
+    // True/False (10)
+    for (let i = 0; i < 10; i++) {
+      const d = dialogues[i % dialogues.length];
+      exercises.push({
+        type: 'truefalse',
+        q: `"${d.t}" is said by ${d.c}.`,
+        a: 'True',
+        o: ['True', 'False'],
+      });
+    }
+
+    // Vocabulary exam (15 questions minimum 90% pass = 14/15)
+    const vocabExam = [];
+    for (let i = 0; i < 15; i++) {
+      const v = vocab[i % vocab.length];
+      const others = vocab.filter(x => x[0] !== v[0]).slice(0, 3).map(x => x[1]);
+      vocabExam.push({
+        q: `What does "${v[0]}" mean?`,
+        a: v[1],
+        o: [v[1], ...others],
+      });
+    }
+
+    SCENES.A1.push({
+      id: listItem.id,
+      title: listItem.title,
+      grammar: listItem.grammar,
+      location: 'The Cozy Cup',
+      characters: ['MILO', 'ANNA', 'LEO', 'SOFIA', 'MR. BROWN'],
+      dialogues: dialogues,
+      vocab: vocab,
+      exercises: exercises,
+      vocabExam: vocabExam,
+      grammarExam: grammarExam,
+    });
+  }
+});
+
+// Add exercise arrays to all scenes that don't have them
+SCENES.A1.forEach(scene => {
+  if (!scene.exercises) {
+    const ex = [];
+    // 30 vocab exercises
+    for (let i = 0; i < 30 && i < scene.vocab.length; i++) {
+      const v = scene.vocab[i];
+      const others = scene.vocab.filter(x => x[0] !== v[0]).slice(0, 3).map(x => x[1]);
+      if (others.length < 3) continue;
+      ex.push({
+        type: 'vocab',
+        q: `What does "${v[0]}" mean?`,
+        a: v[1],
+        o: [v[1], ...others],
+      });
+    }
+    // 30 dialogue exercises
+    for (let i = 0; i < 30; i++) {
+      const d = scene.dialogues[i % scene.dialogues.length];
+      const words = d.t.split(' ');
+      if (words.length < 3) continue;
+      const blankIdx = Math.floor(words.length / 2);
+      const correct = words[blankIdx];
+      const blanked = [...words];
+      blanked[blankIdx] = '___';
+      ex.push({
+        type: 'dialogue',
+        q: `${d.c}: ${blanked.join(' ')}`,
+        a: correct,
+        o: [correct, 'is', 'are', 'the'],
+      });
+    }
+    // 30 grammar exercises
+    for (let i = 0; i < 30; i++) {
+      const g = scene.grammarExam[i % scene.grammarExam.length];
+      ex.push({ type: 'grammar', q: g.q, a: g.a, o: g.o });
+    }
+    // 10 true/false
+    for (let i = 0; i < 10; i++) {
+      const d = scene.dialogues[i % scene.dialogues.length];
+      ex.push({
+        type: 'truefalse',
+        q: `"${d.t}" is said by ${d.c}.`,
+        a: 'True',
+        o: ['True', 'False'],
+      });
+    }
+    scene.exercises = ex;
+  }
+  if (!scene.vocabExam) {
+    scene.vocabExam = scene.vocab.slice(0, 15).map(v => ({
+      q: `What does "${v[0]}" mean?`,
+      a: v[1],
+      o: [v[1], 'A type of food', 'A place', 'An animal'],
+    }));
+  }
+});
+
+// Add other levels (empty for now, but structure ready)
+SCENES.A2 = [];
+SCENES.B1 = [];
+SCENES.B2 = [];
+SCENES.C1 = [];
+SCENES.C2 = [];
+
+// ============ LEVELS CONFIG ============
+const LEVELS = [
+  { id: 'A1', name: 'A1 – Beginner', desc: 'First steps in English', icon: '🌱', color: '#6B8E6B' },
+  { id: 'A2', name: 'A2 – Elementary', desc: 'Building foundations', icon: '🌿', color: '#5B8C9E' },
+  { id: 'B1', name: 'B1 – Intermediate', desc: 'Growing confidence', icon: '🌳', color: '#9E7B5B' },
+  { id: 'B2', name: 'B2 – Upper Intermediate', desc: 'Expressing yourself', icon: '🌲', color: '#8B5B9E' },
+  { id: 'C1', name: 'C1 – Advanced', desc: 'Mastering fluency', icon: '🏔️', color: '#9E5B5B' },
+  { id: 'C2', name: 'C2 – Proficiency', desc: 'Near-native mastery', icon: '🏆', color: '#5B5B9E' },
+];
+
+// ============ RENDER FUNCTIONS ============
+function render() {
+  const app = document.getElementById('app');
+  switch (App.screen) {
+    case 'home': app.innerHTML = renderHome(); break;
+    case 'level': app.innerHTML = renderLevel(); break;
+    case 'scene': app.innerHTML = renderScene(); break;
+    case 'exercise': app.innerHTML = renderExercise(); break;
+    case 'flashcard': app.innerHTML = renderFlashcard(); break;
+    case 'exam': app.innerHTML = renderExam(); break;
+    case 'done': app.innerHTML = renderDone(); break;
+  }
+}
+
+function renderHome() {
+  const xp = App.totalXP;
+  return `
+    <div class="header">
+      <h1>Willowbrook</h1>
+      <div class="sub">Milo's Story · CEFR A1–C2</div>
+    </div>
+    <div class="welcome">
+      <div class="greet">Welcome back! 👋</div>
+      <div class="title">Continue Milo's Story</div>
+      <div class="stats">
+        <div class="stat">⭐ ${xp} XP</div>
+        <div class="stat">📖 ${Object.keys(App.progress).length} scenes done</div>
+      </div>
+    </div>
+    <div class="content">
+      ${LEVELS.map(lvl => {
+        const scenes = SCENES[lvl.id] || [];
+        const doneCount = scenes.filter(s => App.progress[s.id]).length;
+        const pct = scenes.length ? (doneCount / scenes.length) * 100 : 0;
+        const locked = scenes.length === 0;
+        return `
+          <div class="level-card ${locked ? 'locked' : ''}" onclick="openLevel('${lvl.id}')">
+            <div class="level-icon" style="background: ${lvl.color}22; color: ${lvl.color}">
+              ${lvl.icon}
+            </div>
+            <div class="level-info">
+              <div class="level-name">${lvl.name}</div>
+              <div class="level-desc">${scenes.length ? `${doneCount} / ${scenes.length} scenes` : 'Coming soon'}</div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${pct}%; background: ${lvl.color}"></div>
+              </div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderLevel() {
+  const lvl = LEVELS.find(l => l.id === App.currentLevel);
+  const scenes = SCENES[App.currentLevel] || [];
+  return `
+    <div class="header">
+      <div class="row">
+        <button class="back-btn" onclick="goHome()">‹</button>
+        <h1>${lvl.name}</h1>
+      </div>
+      <div class="sub">${scenes.length} scenes</div>
+    </div>
+    <div class="content">
+      ${scenes.map((s, i) => {
+        const done = !!App.progress[s.id];
+        return `
+          <div class="scene-card" onclick="openScene('${s.id}')">
+            <div class="scene-num ${done ? 'done' : 'todo'}">
+              ${done ? '✓' : (i + 1)}
+            </div>
+            <div class="scene-info">
+              <div class="scene-title">${s.title}</div>
+              <div class="scene-gram">${s.grammar}</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderScene() {
+  const s = App.currentScene;
+  const d = s.dialogues[App.currentDialogueIdx];
+  const total = s.dialogues.length;
+  const pct = ((App.currentDialogueIdx + 1) / total) * 100;
+
+  return `
+    <div class="scene-viewer" style="min-height: 100vh;">
+      <div class="scene-bg">
+        <div class="scene-loc">📍 ${s.location}</div>
+      </div>
+      <div class="characters-row">
+        ${s.characters.map(c => `
+          <div class="char-chip ${c === d.c ? 'active' : ''}">${c}</div>
+        `).join('')}
+      </div>
+      <div class="subtitle-box">
+        <div class="subtitle-char">${d.c}</div>
+        <div class="subtitle-text">${d.t}</div>
+        ${d.s ? `<div class="subtitle-stage">${d.s}</div>` : ''}
+      </div>
+      <div class="scene-controls">
+        <div class="ctrl-progress">
+          <div class="ctrl-progress-fill" style="width: ${pct}%"></div>
+        </div>
+        <div class="ctrl-row">
+          <button class="ctrl-btn" onclick="prevDialogue()" ${App.currentDialogueIdx === 0 ? 'disabled' : ''}>‹ Prev</button>
+          <div class="ctrl-count">${App.currentDialogueIdx + 1} / ${total}</div>
+          <button class="ctrl-btn" onclick="nextDialogue()" ${App.currentDialogueIdx === total - 1 ? 'disabled' : ''}>Next ›</button>
+        </div>
+        <div style="margin-top: 10px;">
+          <button class="ctrl-btn primary" style="width: 100%; padding: 14px;" onclick="startExercises()">
+            Start Exercises →
+          </button>
+        </div>
+        <div style="margin-top: 10px;">
+          <button class="ctrl-btn" style="width: 100%; background: transparent;" onclick="backToLevel()">Skip</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderExercise() {
+  const s = App.currentScene;
+  const exercises = s.exercises;
+  if (App.exerciseIdx >= exercises.length) {
+    // Go to flashcards
+    setTimeout(() => { App.screen = 'flashcard'; App.flashcardIdx = 0; App.flashcardFlipped = false; render(); }, 0);
+    return '';
+  }
+  const ex = exercises[App.exerciseIdx];
+  const pct = ((App.exerciseIdx + 1) / exercises.length) * 100;
+
+  return `
+    <div class="header">
+      <div class="row">
+        <button class="back-btn" onclick="backToLevel()">‹</button>
+        <h1>Exercise ${App.exerciseIdx + 1}/${exercises.length}</h1>
+      </div>
+      <div class="progress-bar" style="margin-top: 8px; height: 4px; background: rgba(255,255,255,0.2);">
+        <div style="height: 100%; width: ${pct}%; background: white;"></div>
+      </div>
+    </div>
+    <div class="exercise-container fade-in">
+      <div class="gram-badge">${s.grammar}</div>
+      <div class="question">${ex.q}</div>
+      <div class="options">
+        ${ex.o.map((o, i) => {
+          let cls = 'option';
+          if (App.exerciseAnswered) {
+            if (o === ex.a) cls += ' correct';
+            else if (App.exerciseSelected === i) cls += ' wrong';
+          } else if (App.exerciseSelected === i) cls += ' selected';
+          return `<div class="${cls}" onclick="selectOption(${i})">${o}</div>`;
+        }).join('')}
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="checkExercise()" ${App.exerciseSelected === null ? 'disabled' : ''}>
+          ${App.exerciseAnswered ? (App.exerciseIdx < exercises.length - 1 ? 'Next' : 'Flashcards →') : 'Check'}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderFlashcard() {
+  const s = App.currentScene;
+  const cards = s.vocab;
+  if (App.flashcardIdx >= cards.length) {
+    setTimeout(() => { App.screen = 'exam'; App.examStage = 'vocabulary'; App.examIdx = 0; App.examCorrect = 0; App.examAnswered = false; App.examSelected = null; render(); }, 0);
+    return '';
+  }
+  const card = cards[App.flashcardIdx];
+  return `
+    <div class="header">
+      <div class="row">
+        <button class="back-btn" onclick="backToLevel()">‹</button>
+        <h1>Flashcard ${App.flashcardIdx + 1}/${cards.length}</h1>
+      </div>
+    </div>
+    <div class="exercise-container fade-in">
+      <div class="flashcard-wrap">
+        <div class="flashcard ${App.flashcardFlipped ? 'flipped' : ''}" onclick="flipCard()">
+          <div class="fc-face fc-front">
+            <div class="fc-word">${card[0]}</div>
+            <div class="fc-hint">👆 Tap to flip</div>
+          </div>
+          <div class="fc-face fc-back">
+            <div class="fc-def">${card[1]}</div>
+            <div class="fc-example">"${card[2]}"</div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="nextFlashcard()">Review Again</button>
+        <button class="btn btn-primary" onclick="nextFlashcard()">I Know This ✓</button>
+      </div>
+      <button class="btn" style="margin-top: 12px; background: transparent; color: #666;"
+        onclick="startExam()">Skip to Exam →</button>
+    </div>
+  `;
+}
+
+function renderExam() {
+  const s = App.currentScene;
+  const isVocab = App.examStage === 'vocabulary';
+  const questions = isVocab ? s.vocabExam : s.grammarExam;
+  if (App.examIdx >= questions.length) {
+    // Move to next stage
+    setTimeout(() => { finishExamStage(); }, 0);
+    return '';
+  }
+  const q = questions[App.examIdx];
+  const threshold = isVocab ? 90 : 85;
+  const pct = ((App.examIdx + 1) / questions.length) * 100;
+
+  return `
+    <div class="header" style="background: ${isVocab ? '#2196F3' : '#9C27B0'};">
+      <div class="row">
+        <button class="back-btn" onclick="backToLevel()">‹</button>
+        <h1>${isVocab ? 'Vocabulary Exam' : 'Grammar Exam'}</h1>
+      </div>
+      <div class="progress-bar" style="margin-top: 8px; height: 4px; background: rgba(255,255,255,0.2);">
+        <div style="height: 100%; width: ${pct}%; background: white;"></div>
+      </div>
+    </div>
+    <div class="exercise-container fade-in">
+      <div class="exam-status ${isVocab ? 'vocab' : 'gram'}">
+        Pass threshold: ${threshold}% · Score: ${App.examCorrect}/${App.examIdx + (App.examAnswered ? 1 : 0)}
+      </div>
+      <div class="question">${q.q}</div>
+      <div class="options">
+        ${q.o.map((o, i) => {
+          let cls = 'option';
+          if (App.examAnswered) {
+            if (o === q.a) cls += ' correct';
+            else if (App.examSelected === i) cls += ' wrong';
+          } else if (App.examSelected === i) cls += ' selected';
+          return `<div class="${cls}" onclick="selectExamOption(${i})">${o}</div>`;
+        }).join('')}
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="checkExam()" ${App.examSelected === null ? 'disabled' : ''}>
+          ${App.examAnswered ? 'Next' : 'Check'}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderDone() {
+  const vocab = App.vocabScore;
+  const gram = App.grammarScore;
+  const passed = vocab >= 90 && gram >= 85;
+  return `
+    <div class="result-card fade-in">
+      <div class="result-emoji">${passed ? '🏆' : '📚'}</div>
+      <div class="result-title">${passed ? 'Scene Completed!' : 'Keep Practicing!'}</div>
+      <div style="color: #666; margin-bottom: 24px;">${App.currentScene.title}</div>
+      <div class="score-row ${vocab >= 90 ? 'pass' : 'fail'}">
+        <span>Vocabulary</span>
+        <strong>${vocab}%</strong>
+      </div>
+      <div class="score-row ${gram >= 85 ? 'pass' : 'fail'}">
+        <span>Grammar</span>
+        <strong>${gram}%</strong>
+      </div>
+      <div class="btn-row" style="margin-top: 24px;">
+        <button class="btn btn-secondary" onclick="retryScene()">Retry</button>
+        <button class="btn btn-primary" onclick="goHome()">Home</button>
+      </div>
+    </div>
+  `;
+}
+
+// ============ ACTIONS ============
+function goHome() {
+  App.screen = 'home';
+  App.currentLevel = null;
+  App.currentScene = null;
+  render();
+}
+
+function openLevel(id) {
+  if (!SCENES[id] || SCENES[id].length === 0) {
+    alert('This level is coming soon!');
+    return;
+  }
+  App.currentLevel = id;
+  App.screen = 'level';
+  render();
+}
+
+function openScene(id) {
+  const s = SCENES[App.currentLevel].find(x => x.id === id);
+  if (!s) return;
+  App.currentScene = s;
+  App.currentDialogueIdx = 0;
+  App.screen = 'scene';
+  render();
+}
+
+function backToLevel() {
+  App.screen = 'level';
+  App.currentScene = null;
+  render();
+}
+
+function prevDialogue() {
+  if (App.currentDialogueIdx > 0) {
+    App.currentDialogueIdx--;
+    render();
+  }
+}
+
+function nextDialogue() {
+  if (App.currentDialogueIdx < App.currentScene.dialogues.length - 1) {
+    App.currentDialogueIdx++;
+    render();
+  }
+}
+
+function startExercises() {
+  App.screen = 'exercise';
+  App.exerciseIdx = 0;
+  App.exerciseCorrect = 0;
+  App.exerciseAnswered = false;
+  App.exerciseSelected = null;
+  render();
+}
+
+function selectOption(i) {
+  if (App.exerciseAnswered) return;
+  App.exerciseSelected = i;
+  render();
+}
+
+function checkExercise() {
+  const ex = App.currentScene.exercises[App.exerciseIdx];
+  if (!App.exerciseAnswered) {
+    App.exerciseAnswered = true;
+    if (ex.o[App.exerciseSelected] === ex.a) App.exerciseCorrect++;
+    render();
+  } else {
+    App.exerciseIdx++;
+    App.exerciseSelected = null;
+    App.exerciseAnswered = false;
+    render();
+  }
+}
+
+function flipCard() {
+  App.flashcardFlipped = !App.flashcardFlipped;
+  render();
+}
+
+function nextFlashcard() {
+  App.flashcardIdx++;
+  App.flashcardFlipped = false;
+  render();
+}
+
+function startExam() {
+  App.screen = 'exam';
+  App.examStage = 'vocabulary';
+  App.examIdx = 0;
+  App.examCorrect = 0;
+  App.examAnswered = false;
+  App.examSelected = null;
+  render();
+}
+
+function selectExamOption(i) {
+  if (App.examAnswered) return;
+  App.examSelected = i;
+  render();
+}
+
+function checkExam() {
+  const s = App.currentScene;
+  const isVocab = App.examStage === 'vocabulary';
+  const questions = isVocab ? s.vocabExam : s.grammarExam;
+  const q = questions[App.examIdx];
+
+  if (!App.examAnswered) {
+    App.examAnswered = true;
+    if (q.o[App.examSelected] === q.a) App.examCorrect++;
+    render();
+  } else {
+    App.examIdx++;
+    App.examSelected = null;
+    App.examAnswered = false;
+    render();
+  }
+}
+
+function finishExamStage() {
+  const s = App.currentScene;
+  const isVocab = App.examStage === 'vocabulary';
+  const questions = isVocab ? s.vocabExam : s.grammarExam;
+  const score = Math.round((App.examCorrect / questions.length) * 100);
+  const threshold = isVocab ? 90 : 85;
+
+  if (score < threshold) {
+    // Fail - retry
+    if (confirm(`${isVocab ? 'Vocabulary' : 'Grammar'} Score: ${score}%\nRequired: ${threshold}%\n\nRetry?`)) {
+      App.examIdx = 0;
+      App.examCorrect = 0;
+      App.examAnswered = false;
+      App.examSelected = null;
+      render();
+    } else {
+      backToLevel();
+    }
+    return;
+  }
+
+  if (isVocab) {
+    App.vocabScore = score;
+    // Move to grammar exam
+    App.examStage = 'grammar';
+    App.examIdx = 0;
+    App.examCorrect = 0;
+    App.examAnswered = false;
+    App.examSelected = null;
+    render();
+  } else {
+    App.grammarScore = score;
+    // Complete scene
+    App.progress[s.id] = { vocab: App.vocabScore, gram: score };
+    App.totalXP += 50;
+    saveProgress();
+    App.screen = 'done';
+    render();
+  }
+}
+
+function retryScene() {
+  App.screen = 'scene';
+  App.currentDialogueIdx = 0;
+  render();
+}
+
+// ============ INIT ============
+render();
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js').catch(() => {});
+}
+</script>
+</body>
+</html>
